@@ -10,14 +10,14 @@ const addtoCart=async (req:any,res:any):Promise<any> =>{
                 message:"This product is not available"
             }) 
         }else{
-            const name =found.name;
-            const price=found.price;
+            const {name,price,quantity}= found
             res.status(200).json({
               message:"add to cart successfully"
             })
             const selected=new cart({
                 name:found.name,
-                price:price
+                price:price,
+                quantity:quantity
             })
             selected.save()
         }
@@ -28,15 +28,15 @@ const addtoCart=async (req:any,res:any):Promise<any> =>{
 };
 const deleteCart=async (req:any,res:any):Promise<any> =>{
     try{
-        const data= req.body;
-        const found =await cart.findOne({name:data.name})
+       const productId = req.params.productId;
+        const found = await cart.findOne({ productId: productId });
         if(!found){
             res.status(400).json({
                 message:"This product is not available"
             }) 
         }else{
-            const id =found._id;
-            await cart.deleteOne({_id:id})
+            const productId =found._id;
+            await cart.deleteOne({_id:productId})
             res.status(200).json({
                  message:"deleted from cart successfully"
             })
@@ -55,34 +55,36 @@ const viewincart=async (req:any,res:any):Promise<any> =>{
         res.sendStatus(500);
     }
 }
-const updateCart=async (req:any,res:any):Promise<any> =>{
-    try{
-        const data= req.body;
-        const found =await cart.findOne({name:data.name})
-        if(!found){
-            res.status(400).json({
-                message:"This product is not available"
-            }) 
-        }else{
-            const name =found.name;
-            let price:any =found.price;
-            if (data.quantity&&!isNaN(data.quantity)){
-                price *= data.quantity
-            }
-            console.log(price);
-            const selected=new cart({
-                name:name,
-                price:price
-            })
-            selected.save()
-            res.status(200).json({
-                message:"add to cart successfully",selected
-                
-            });
+const updateCart = async (req: any, res: any): Promise<any> => {
+    try {
+      const data = req.body;
+      const productId = req.params.productId;
+      const found = await cart.findOne({ productId: productId });
+      if (!found) {
+        return res.status(400).json({
+          message: "This product is not available",
+        });
+      } else {
+        const name = found.name;
+        let price: any = found.price;
+        if (data.quantity && !isNaN(data.quantity)) {
+          price = price * data.quantity;
         }
-    }catch(error){
-        console.error("error occured while creating product",error);
-        res.sendStatus(500);
-    };
-};
+        console.log(price);
+        const updated = await cart.findOneAndUpdate(
+            { productId: productId },
+            { ...found.toObject(), price: price },
+            { new: true }
+        );
+        return res.status(200).json({
+          message: "updated to cart successfully",updated
+        
+        });
+        
+      }
+    } catch (error) {
+      console.error("An error occurred while updating the cart", error);
+      return res.sendStatus(500);
+    }
+  };
 export{addtoCart,deleteCart,viewincart,updateCart}

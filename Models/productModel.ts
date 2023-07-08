@@ -12,6 +12,12 @@ const createProduct =new mongoose.Schema({
     price:{
         type:Number,
         required:"the price is required"
+    },
+    quantity:{
+        type:Number
+    },
+    image:{
+        
     }
     
 });
