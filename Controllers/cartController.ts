@@ -4,6 +4,7 @@ import cart from "../Models/cartModel";
 const addtoCart=async (req:any,res:any):Promise<any> =>{
     try{
         const data= req.body;
+        console.log("data",data,req.headers);
         const found =await product.findOne({name:data.name})
         if(!found){
             res.status(400).json({

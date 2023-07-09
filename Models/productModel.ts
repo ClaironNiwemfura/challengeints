@@ -17,7 +17,8 @@ const createProduct =new mongoose.Schema({
         type:Number
     },
     image:{
-        
+        type:String,
+        // required:"the image is required"
     }
     
 });
